@@ -33,4 +33,40 @@ impl EventHandler {
 
         Self { nvim, calculator }
     }
+
+    /// handle event
+    pub fn recv(&mut self) {
+        let receiver = self.nvim.session.start_event_loop_channel();
+
+        for (event, values) in receiver {
+            match Messages::from(event) {
+                Messages::Add => {
+                    // ToDo
+                }
+                Messages::Multiply => {
+                    // ToDo
+                }
+                Messages::Unknown(event) => {
+                    // ToDo
+                }
+            }
+        }
+    }
+}
+
+/// for handle message
+pub enum Messages {
+    Add,
+    Multiply,
+    Unknown(String),
+}
+
+impl From<String> for Messages {
+    fn from(event: String) -> Self {
+        match &event[..] {
+            "add" => Messages::Add,
+            "multiply" => Messages::Multiply,
+            _ => Messages::Unknown(event),
+        }
+    }
 }
