@@ -40,14 +40,37 @@ impl EventHandler {
 
         for (event, values) in receiver {
             match Messages::from(event) {
+                // handel 'Add'
                 Messages::Add => {
-                    // ToDo
+                    let nums = values
+                        .iter()
+                        .map(|v| v.as_i64().unwrap())
+                        .collect::<Vec<i64>>();
+                    let sum = self.calculator.add(nums);
+
+                    // echo response to Neovim
+                    self.nvim
+                        .command(&format!("echo \"Sum {}\"", sum.to_string()))
+                        .unwrap();
                 }
+                // handel 'Multiply'
                 Messages::Multiply => {
-                    // ToDo
+                    let mut nums = values.iter();
+                    let p = nums.next().unwrap().as_i64().unwrap();
+                    let q = nums.next().unwrap().as_i64().unwrap();
+                    let product = self.calculator.multiply(p, q);
+
+                    // echo response to Neovim
+                    self.nvim
+                        .command(&format!("echo \"Product: {}\"", product.to_string()))
+                        .unwrap();
                 }
+                // handle anythin else
                 Messages::Unknown(event) => {
-                    // ToDo
+                    // echo response to Neovim
+                    self.nvim
+                        .command(&format!("echo \"Unknown Command: {}\"", event))
+                        .unwrap();
                 }
             }
         }
