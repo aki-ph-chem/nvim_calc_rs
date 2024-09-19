@@ -1,5 +1,6 @@
 " Initialize the channel
 if !exists('s:calculatorJobId')
+    echo "initialize calculatorJobId: ok!"
     let s:calculatorJobId = 0
 endif
 
@@ -8,6 +9,7 @@ let s:bin = '/home/aki/nvim_calc_rs/target/release/nvim_calc_rs'
 
 " Entry point
 function! s:connect()
+    echo "start connect!"
     let id = s:initRpc()
 
     if 0 == id
@@ -15,6 +17,7 @@ function! s:connect()
     elseif -1 == id
         echoerr "calculator: cannot start rpc process"
     else
+        echo "initRpc() is Ok!"
 
         "Mutate our jobId
         let s:calculatorJobId = id
