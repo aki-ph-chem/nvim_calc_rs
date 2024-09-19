@@ -37,14 +37,14 @@ function! s:add(...)
     let s:p = get(a:,1,0)
     let s:q = get(a:,2,0)
 
-    call rpcnotify(s: calculatorJobId, s: Add, str2nr(s:p), str2nr(s:q))
+    call rpcnotify(s:calculatorJobId, s:Add, str2nr(s:p), str2nr(s:q))
 endfunction
 
 function! s:multiply(...)
     let s:p = get(a:,1,1)
     let s:q = get(a:,2,1)
 
-    call rpcnotify(s: calculatorJobId, s:Multiply , str2nr(s:p), str2nr(s:q))
+    call rpcnotify(s:calculatorJobId, s:Multiply , str2nr(s:p), str2nr(s:q))
 endfunction
 
 " initialize RPC
