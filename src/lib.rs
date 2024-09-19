@@ -27,7 +27,7 @@ pub struct EventHandler {
 
 impl EventHandler {
     pub fn new() -> Self {
-        let mut session = Session::new_parent().unwrap();
+        let session = Session::new_parent().unwrap();
         let nvim = Neovim::new(session);
         let calculator = Calculator::new();
 
