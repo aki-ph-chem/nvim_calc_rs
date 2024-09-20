@@ -15,7 +15,7 @@ cargo build --release
         other plugins
     --]]
 nvim_calc_rs = {
-    dir = "path_to_rust_binary"
+    dir = "path_to_this_directory"
 }
 
 return {
