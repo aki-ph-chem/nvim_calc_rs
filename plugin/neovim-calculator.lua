@@ -10,8 +10,6 @@ local connect = function()
 	elseif -1 == id then
 		print("calculator: cannot start rpc process")
 	else
-		print("initRpc(): Ok")
-		print("id = " .. id)
 		calculatorJobLuaId = id
 	end
 end
@@ -33,8 +31,6 @@ vim.api.nvim_create_user_command("AddL", function(ops)
 	end
 	local p = tonumber(args[1])
 	local q = tonumber(args[2])
-
-	print("calculatorJobLuaId(in AddL) = " .. calculatorJobLuaId)
 
 	vim.rpcnotify(calculatorJobLuaId, "add", p, q)
 end, { nargs = "*" })
