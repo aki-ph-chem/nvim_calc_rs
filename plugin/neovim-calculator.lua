@@ -19,7 +19,7 @@ end
 --- initialize RPC
 initRpc = function()
 	if calculatorJobLuaId == 0 then
-		jobid = vim.fn.jobstart(bin, { prc = true })
+		jobid = vim.fn.jobstart(bin, { rpc = true })
 		return jobid
 	else
 		return calculatorJobLuaId
