@@ -42,17 +42,20 @@ impl EventHandler {
     /// handle event
     pub fn recv(&mut self) {
         let receiver = self.nvim.session.start_event_loop_channel();
-
         for (event, values) in receiver {
+            log::info!("event, values = {}, {:?}", event, values);
             match Messages::from(event) {
                 // handel 'Add'
                 Messages::Add => {
+                    log::info!("command 'Add' is called");
                     let nums = values
                         .iter()
                         .map(|v| v.as_i64().unwrap())
                         .collect::<Vec<i64>>();
-
+                    log::info!("convert to Vec<i64>: ok");
+                    // calculate sum
                     let sum = self.calculator.add(nums);
+                    log::info!("sum = {sum}");
 
                     // echo response to Neovim
                     self.nvim
@@ -61,16 +64,20 @@ impl EventHandler {
                 }
                 // handel 'SumAll'
                 Messages::SumAll => {
+                    log::info!("command 'SumAll' is called");
                     let nums = if let Some(rmpv::Value::Array(array)) = values.iter().next() {
                         array
                     } else {
+                        log::error!("panic while converting to Vec");
                         panic!("Error: invalid data format");
                     };
                     let nums = nums
                         .iter()
                         .map(|v| v.as_i64().unwrap())
                         .collect::<Vec<i64>>();
+                    // calculate sum
                     let sum = self.calculator.add(nums);
+                    log::info!("sum = {sum}");
 
                     // echo response to Neovim
                     self.nvim
@@ -79,9 +86,11 @@ impl EventHandler {
                 }
                 // handel 'Average'
                 Messages::Average => {
+                    log::info!("command 'Average' is called");
                     let nums = if let Some(rmpv::Value::Array(array)) = values.iter().next() {
                         array
                     } else {
+                        log::error!("panic while converting to Vec");
                         panic!("Error: invalid data format");
                     };
                     let nums = nums
@@ -89,19 +98,22 @@ impl EventHandler {
                         .map(|v| v.as_i64().unwrap())
                         .collect::<Vec<i64>>();
                     let n = nums.len();
-                    let sum = self.calculator.add(nums) as f64 / n as f64;
+                    let average = self.calculator.add(nums) as f64 / n as f64;
+                    log::info!("average = {average}");
 
                     // echo response to Neovim
                     self.nvim
-                        .command(&format!("echo \"Average {}\"", sum.to_string()))
+                        .command(&format!("echo \"Average {}\"", average.to_string()))
                         .unwrap();
                 }
                 // handel 'Multiply'
                 Messages::Multiply => {
+                    log::info!("command 'Multiply' is called");
                     let mut nums = values.iter();
                     let p = nums.next().unwrap().as_i64().unwrap();
                     let q = nums.next().unwrap().as_i64().unwrap();
                     let product = self.calculator.multiply(p, q);
+                    log::info!("product = {product}");
 
                     // echo response to Neovim
                     self.nvim
@@ -110,6 +122,7 @@ impl EventHandler {
                 }
                 // handel 'MulAll'
                 Messages::MulAll => {
+                    log::info!("command 'MulAll' is called");
                     let nums = if let Some(rmpv::Value::Array(array)) = values.iter().next() {
                         array
                     } else {
@@ -120,6 +133,7 @@ impl EventHandler {
                         .map(|v| v.as_i64().unwrap())
                         .collect::<Vec<i64>>();
                     let prod_all = self.calculator.mul_all(nums);
+                    log::info!("prod_all = {prod_all}");
 
                     // echo response to Neovim
                     self.nvim
@@ -128,6 +142,7 @@ impl EventHandler {
                 }
                 // handle anythin else
                 Messages::Unknown(event) => {
+                    log::error!("Unknown 'command' {} is called", event);
                     // echo response to Neovim
                     self.nvim
                         .command(&format!("echo \"Unknown Command: {}\"", event))
