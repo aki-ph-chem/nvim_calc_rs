@@ -42,11 +42,45 @@ impl EventHandler {
             match Messages::from(event) {
                 // handel 'Add'
                 Messages::Add => {
+                    let nums_str = format!("values = {:?}", values);
+                    self.nvim
+                        .command(&format!("echo \"{}\"", nums_str))
+                        .unwrap();
+
                     let nums = values
                         .iter()
                         .map(|v| v.as_i64().unwrap())
                         .collect::<Vec<i64>>();
+
                     let sum = self.calculator.add(nums);
+
+                    // echo response to Neovim
+                    self.nvim
+                        .command(&format!("echo \"Sum {}\"", sum.to_string()))
+                        .unwrap();
+                }
+                // handel 'SumAll'
+                Messages::SumAll => {
+                    let nums_str = format!("values = {:?}", values);
+                    self.nvim
+                        .command(&format!("echo \"{}\"", nums_str))
+                        .unwrap();
+                    /*
+                    let nums = values
+                        .iter()
+                        .map(|v| {
+                            if let Some(n) = v.as_i64() {
+                                n
+                            } else {
+                                self.nvim
+                                    .command(&format!("echo \"invalid literal\""))
+                                    .unwrap();
+                                panic!("invalid literal")
+                            }
+                        })
+                        .collect::<Vec<i64>>();
+                    */
+                    let sum = 1212;
 
                     // echo response to Neovim
                     self.nvim
@@ -81,6 +115,7 @@ impl EventHandler {
 pub enum Messages {
     Add,
     Multiply,
+    SumAll,
     Unknown(String),
 }
 
@@ -89,6 +124,7 @@ impl From<String> for Messages {
         match &event[..] {
             "add" => Messages::Add,
             "multiply" => Messages::Multiply,
+            "sum_all" => Messages::SumAll,
             _ => Messages::Unknown(event),
         }
     }

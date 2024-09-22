@@ -17,7 +17,7 @@ end
 --- initialize RPC
 initRpc = function()
 	if calculatorJobLuaId == 0 then
-		jobid = vim.fn.jobstart(bin, { rpc = true })
+		local jobid = vim.fn.jobstart(bin, { rpc = true })
 		return jobid
 	else
 		return calculatorJobLuaId
@@ -44,6 +44,19 @@ vim.api.nvim_create_user_command("MulL", function(ops)
 	local q = tonumber(args[2])
 
 	vim.rpcnotify(calculatorJobLuaId, "multiply", p, q)
+end, { nargs = "*" })
+
+vim.api.nvim_create_user_command("SumAll", function(ops)
+	local args = ops.fargs
+	if #args < 1 then
+		return
+	end
+	local args_num = {}
+	for v in pairs(args) do
+		table.insert(args_num, tonumber(v))
+	end
+
+	vim.rpcnotify(calculatorJobLuaId, "sum_all", args_num)
 end, { nargs = "*" })
 
 connect()
