@@ -5,3 +5,4 @@ edition = "2021"
 
 [dependencies]
 neovim-lib = "0.6.1"
+rmpv = { version ="0.4", features=["with-serde"] }

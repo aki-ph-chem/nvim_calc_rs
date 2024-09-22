@@ -42,11 +42,6 @@ impl EventHandler {
             match Messages::from(event) {
                 // handel 'Add'
                 Messages::Add => {
-                    let nums_str = format!("values = {:?}", values);
-                    self.nvim
-                        .command(&format!("echo \"{}\"", nums_str))
-                        .unwrap();
-
                     let nums = values
                         .iter()
                         .map(|v| v.as_i64().unwrap())
@@ -61,26 +56,16 @@ impl EventHandler {
                 }
                 // handel 'SumAll'
                 Messages::SumAll => {
-                    let nums_str = format!("values = {:?}", values);
-                    self.nvim
-                        .command(&format!("echo \"{}\"", nums_str))
-                        .unwrap();
-                    /*
-                    let nums = values
+                    let nums = if let Some(rmpv::Value::Array(array)) = values.iter().next() {
+                        array
+                    } else {
+                        panic!("Error: invalid data format");
+                    };
+                    let nums = nums
                         .iter()
-                        .map(|v| {
-                            if let Some(n) = v.as_i64() {
-                                n
-                            } else {
-                                self.nvim
-                                    .command(&format!("echo \"invalid literal\""))
-                                    .unwrap();
-                                panic!("invalid literal")
-                            }
-                        })
+                        .map(|v| v.as_i64().unwrap())
                         .collect::<Vec<i64>>();
-                    */
-                    let sum = 1212;
+                    let sum = self.calculator.add(nums);
 
                     // echo response to Neovim
                     self.nvim

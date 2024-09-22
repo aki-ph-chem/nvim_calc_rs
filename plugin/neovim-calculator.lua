@@ -52,7 +52,7 @@ vim.api.nvim_create_user_command("SumAll", function(ops)
 		return
 	end
 	local args_num = {}
-	for v in pairs(args) do
+	for _, v in pairs(args) do
 		table.insert(args_num, tonumber(v))
 	end
 

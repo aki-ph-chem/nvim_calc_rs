@@ -58,6 +58,7 @@ name = "nvim_calc_rs"
 version = "0.1.0"
 dependencies = [
  "neovim-lib",
+ "rmpv",
 ]
 
 [[package]]
