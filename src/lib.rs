@@ -17,6 +17,11 @@ impl Calculator {
     pub fn multiply(&self, p: i64, q: i64) -> i64 {
         p * q
     }
+
+    /// Multiply all
+    pub fn mul_all(&self, nums: Vec<i64>) -> i64 {
+        nums.iter().fold(1, |mul_all, x| mul_all * x)
+    }
 }
 
 /// event handler
@@ -72,6 +77,25 @@ impl EventHandler {
                         .command(&format!("echo \"Sum {}\"", sum.to_string()))
                         .unwrap();
                 }
+                // handel 'Average'
+                Messages::Average => {
+                    let nums = if let Some(rmpv::Value::Array(array)) = values.iter().next() {
+                        array
+                    } else {
+                        panic!("Error: invalid data format");
+                    };
+                    let nums = nums
+                        .iter()
+                        .map(|v| v.as_i64().unwrap())
+                        .collect::<Vec<i64>>();
+                    let n = nums.len();
+                    let sum = self.calculator.add(nums) as f64 / n as f64;
+
+                    // echo response to Neovim
+                    self.nvim
+                        .command(&format!("echo \"Average {}\"", sum.to_string()))
+                        .unwrap();
+                }
                 // handel 'Multiply'
                 Messages::Multiply => {
                     let mut nums = values.iter();
@@ -82,6 +106,24 @@ impl EventHandler {
                     // echo response to Neovim
                     self.nvim
                         .command(&format!("echo \"Product: {}\"", product.to_string()))
+                        .unwrap();
+                }
+                // handel 'MulAll'
+                Messages::MulAll => {
+                    let nums = if let Some(rmpv::Value::Array(array)) = values.iter().next() {
+                        array
+                    } else {
+                        panic!("Error: invalid data format");
+                    };
+                    let nums = nums
+                        .iter()
+                        .map(|v| v.as_i64().unwrap())
+                        .collect::<Vec<i64>>();
+                    let prod_all = self.calculator.mul_all(nums);
+
+                    // echo response to Neovim
+                    self.nvim
+                        .command(&format!("echo \"Product All {}\"", prod_all.to_string()))
                         .unwrap();
                 }
                 // handle anythin else
@@ -101,6 +143,8 @@ pub enum Messages {
     Add,
     Multiply,
     SumAll,
+    Average,
+    MulAll,
     Unknown(String),
 }
 
@@ -110,6 +154,8 @@ impl From<String> for Messages {
             "add" => Messages::Add,
             "multiply" => Messages::Multiply,
             "sum_all" => Messages::SumAll,
+            "average" => Messages::Average,
+            "mul_all" => Messages::MulAll,
             _ => Messages::Unknown(event),
         }
     }

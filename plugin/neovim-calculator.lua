@@ -59,4 +59,30 @@ vim.api.nvim_create_user_command("SumAll", function(ops)
 	vim.rpcnotify(calculatorJobLuaId, "sum_all", args_num)
 end, { nargs = "*" })
 
+vim.api.nvim_create_user_command("Average", function(ops)
+	local args = ops.fargs
+	if #args < 1 then
+		return
+	end
+	local args_num = {}
+	for _, v in pairs(args) do
+		table.insert(args_num, tonumber(v))
+	end
+
+	vim.rpcnotify(calculatorJobLuaId, "average", args_num)
+end, { nargs = "*" })
+
+vim.api.nvim_create_user_command("MulAll", function(ops)
+	local args = ops.fargs
+	if #args < 1 then
+		return
+	end
+	local args_num = {}
+	for _, v in pairs(args) do
+		table.insert(args_num, tonumber(v))
+	end
+
+	vim.rpcnotify(calculatorJobLuaId, "mul_all", args_num)
+end, { nargs = "*" })
+
 connect()
