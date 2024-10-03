@@ -21,8 +21,50 @@ local build_rust = function(is_debug)
 	end
 end
 
+local build_rust_async = function(is_debug)
+	local path_to_project = "/home/aki/nvim_calc_rs"
+	local path_to_bin = "/home/aki/nvim_calc_rs/target/release/nvim_calc_rs"
+
+	if not vim.loop.fs_stat(path_to_bin) then
+		print("build rust binary ...")
+
+		local build_cmd = { "cargo", "build", "--release", "--manifest-path=" .. path_to_project .. "/Cargo.toml" }
+		if is_debug then
+			for _, c in ipairs(build_cmd) do
+				print(c)
+			end
+		end
+		vim.fn.jobstart(build_cmd, {
+			on_stdout = function(_, data)
+				for _, line in ipairs(data) do
+					if line ~= "" then
+						print(line)
+					end
+				end
+			end,
+			on_stderr = function(_, data)
+				for _, line in ipairs(data) do
+					if line ~= "" then
+						print("Error: " .. line)
+					end
+				end
+			end,
+			on_exit = function(_, code, _)
+				if code == 0 then
+					print("Build: Ok")
+				else
+					print("Build failed with exit code " .. code)
+				end
+			end,
+			stderr_buffered = true,
+			stdout_buffered = true,
+		})
+	end
+end
+
 local main = function()
 	build_rust(true)
+	--build_rust_async(false)
 	local state_calc = {}
 	state_calc.jobRpcId = 0
 	state_calc.path = "/home/aki/nvim_calc_rs/target/release/nvim_calc_rs"
