@@ -1,33 +1,28 @@
 require("utl")
 
 local build_rust = function(is_debug)
-	local path_to_project = "/home/aki/nvim_calc_rc"
+	local path_to_project = "/home/aki/nvim_calc_rs"
 	local path_to_bin = "/home/aki/nvim_calc_rs/target/release/nvim_calc_rs"
 
 	if not vim.loop.fs_stat(path_to_bin) then
 		print("build rust binary ...")
 
-		local build_cmd = "cargo build --release --manifest-path= " .. path_to_project .. "/Cargo.toml"
+		local build_cmd = "cargo build --release --manifest-path=" .. path_to_project .. "/Cargo.toml"
 		print("build_cmd: " .. build_cmd)
 
 		local result_build = vim.fn.systemlist(build_cmd)
-		for _, line in ipairs(result_build) do
-			print(line)
+		if is_debug then
+			for _, line in ipairs(result_build) do
+				print(line)
+			end
 		end
-		--[[
-		vim.fn.system({
-			"cargo",
-			"build",
-			"--release",
-		})
-                --]]
 
 		print("build: Ok")
 	end
 end
 
 local main = function()
-	--build_rust(true)
+	build_rust(true)
 	local state_calc = {}
 	state_calc.jobRpcId = 0
 	state_calc.path = "/home/aki/nvim_calc_rs/target/release/nvim_calc_rs"
