@@ -75,7 +75,7 @@ local build_rust_async = function(is_debug)
 end
 
 local main = function()
-	build_rust(true)
+	build_rust(false)
 	--build_rust_async(false)
 	local state_calc = {}
 	state_calc.jobRpcId = 0
