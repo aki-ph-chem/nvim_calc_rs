@@ -1,20 +1,30 @@
 require("utl")
 
+local get_project_root_dir = function()
+	-- get path to project root
+	local plugin_root = debug.getinfo(1, "S").source:sub(2):match("(.*/)")
+	return plugin_root
+end
+
 local build_rust = function(is_debug)
-	local path_to_project = "/home/aki/nvim_calc_rs"
-	local path_to_bin = "/home/aki/nvim_calc_rs/target/release/nvim_calc_rs"
+	--local project_root_dir = get_project_root_dir()
+	local project_root_dir = "/home/aki/nvim_calc_rs"
+	local path_to_bin = project_root_dir .. "/target/release/nvim_calc_rs"
+
+	if is_debug then
+		print("projet_root_dir: " .. project_root_dir)
+		print("path_to_bin: " .. path_to_bin)
+	end
 
 	if not vim.loop.fs_stat(path_to_bin) then
 		print("build rust binary ...")
 
-		local build_cmd = "cargo build --release --manifest-path=" .. path_to_project .. "/Cargo.toml"
+		local build_cmd = "cargo build --release --manifest-path=" .. project_root_dir .. "Cargo.toml"
 		print("build_cmd: " .. build_cmd)
 
 		local result_build = vim.fn.systemlist(build_cmd)
-		if is_debug then
-			for _, line in ipairs(result_build) do
-				print(line)
-			end
+		for _, line in ipairs(result_build) do
+			print(line)
 		end
 
 		print("build: Ok")
