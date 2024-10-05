@@ -72,6 +72,7 @@ local build_rust_async = function(config, state)
 		if config.is_debug then
 			print("rust binary: Ok")
 		end
+		connect_to_bin(state)
 	end
 
 	return job_id
@@ -81,14 +82,13 @@ local main = function()
 	local state_calc = {
 		jobRpcId = 0,
 		path = get_project_root_dir() .. "/target/release/nvim_calc_rs",
-		is_debug = true,
+		is_debug = false,
 	}
 	local config_build = {
 		is_debug = false,
 		use_new_window = false,
 	}
 	build_rust_async(config_build, state_calc)
-	connect_to_bin(state_calc)
 
 	vim.api.nvim_create_user_command("AddL", function(ops)
 		local args = ops.fargs
