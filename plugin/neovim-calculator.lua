@@ -33,50 +33,57 @@ local build_rust = function(is_debug)
 	end
 end
 
-local build_rust_async = function(is_debug)
+local build_rust_async = function(config)
 	local path_to_project = get_project_root_dir()
 	local path_to_bin = path_to_project .. "/target/release/nvim_calc_rs"
+	local job = { job_id = 0 }
 
 	if not vim.loop.fs_stat(path_to_bin) then
-		print("build rust binary ...")
-
-		local build_cmd = { "cargo", "build", "--release", "--manifest-path=" .. path_to_project .. "/Cargo.toml" }
-		if is_debug then
-			for _, c in ipairs(build_cmd) do
-				print(c)
-			end
+		if config.use_new_window then
+			vim.api.nvim_command("vnew")
 		end
-		vim.fn.jobstart(build_cmd, {
-			on_stdout = function(_, data)
-				for _, line in ipairs(data) do
-					if line ~= "" then
-						print(line)
-					end
-				end
-			end,
-			on_stderr = function(_, data)
-				for _, line in ipairs(data) do
-					if line ~= "" then
-						print("Error: " .. line)
-					end
+		vim.api.nvim_buf_set_lines(0, -1, -1, false, { "   build rust binary..." })
+
+		local build_cmd = "cargo build --release --manifest-path=" .. path_to_project .. "/Cargo.toml"
+		if config.is_debug then
+			print("build_cmd: " .. build_cmd)
+		end
+
+		job.job_id = vim.fn.jobstart(build_cmd, {
+			on_stderr = function(_, data, _)
+				if data then
+					-- Add the ping output to the current buffer in real time
+					vim.api.nvim_buf_set_lines(0, -1, -1, false, data)
 				end
 			end,
 			on_exit = function(_, code, _)
 				if code == 0 then
-					print("Build: Ok")
+					vim.api.nvim_buf_set_lines(0, -1, -1, false, { "   Build: Ok" })
 				else
-					print("Build failed with exit code " .. code)
+					local error_message = string.format("   Build failed with exit code: %d", code)
+					vim.api.nvim_buf_set_lines(0, -1, -1, false, { error_message })
 				end
 			end,
-			stderr_buffered = true,
-			stdout_buffered = true,
 		})
+
+		vim.cmd("setlocal buftype=nofile")
+	else
+		if config.is_debug then
+			print("rust binary: Ok")
+		end
 	end
+
+	return job
 end
 
 local main = function()
-	build_rust(false)
-	--build_rust_async(false)
+	local config_build = {
+		is_debug = false,
+		use_new_window = false,
+	}
+	local job_build = build_rust_async(config_build)
+	--vim.fn.jobwait(job_build)
+
 	local state_calc = {}
 	state_calc.jobRpcId = 0
 	state_calc.path = get_project_root_dir() .. "/target/release/nvim_calc_rs"
