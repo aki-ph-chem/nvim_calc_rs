@@ -1,3 +1,5 @@
+require("utl")
+
 get_project_root_dir = function()
 	-- get path to project root
 	local plugin = debug.getinfo(1, "S").source:sub(2):match("(.*/)")
@@ -34,6 +36,51 @@ build_rust = function(is_debug, state)
 end
 
 build_rust_async = function(config, state)
+	local path_to_project = get_project_root_dir()
+	local path_to_bin = path_to_project .. "/target/release/nvim_calc_rs"
+	local job_id = 0
+
+	if not vim.loop.fs_stat(path_to_bin) then
+		if config.use_new_window then
+			vim.api.nvim_command("vnew")
+		end
+		vim.api.nvim_buf_set_lines(0, -1, -1, false, { "   build rust binary..." })
+
+		local build_cmd = "cargo build --release --manifest-path=" .. path_to_project .. "/Cargo.toml"
+		if config.is_debug then
+			print("build_cmd: " .. build_cmd)
+		end
+
+		job_id = vim.fn.jobstart(build_cmd, {
+			on_stderr = function(_, data, _)
+				if data then
+					-- Add the ping output to the current buffer in real time
+					vim.api.nvim_buf_set_lines(0, -1, -1, false, data)
+				end
+			end,
+			on_exit = function(_, code, _)
+				if code == 0 then
+					vim.api.nvim_buf_set_lines(0, -1, -1, false, { "   Build: Ok" })
+					connect_to_bin(state)
+				else
+					local error_message = string.format("   Build failed with exit code: %d", code)
+					vim.api.nvim_buf_set_lines(0, -1, -1, false, { error_message })
+				end
+			end,
+		})
+
+		vim.cmd("setlocal buftype=nofile")
+	else
+		if config.is_debug then
+			print("rust binary: Ok")
+		end
+		connect_to_bin(state)
+	end
+
+	return job_id
+end
+
+build_rust_async_window = function(config, state)
 	local path_to_project = get_project_root_dir()
 	local path_to_bin = path_to_project .. "/target/release/nvim_calc_rs"
 	local job_id = 0
