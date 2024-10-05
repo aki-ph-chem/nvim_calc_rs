@@ -86,7 +86,7 @@ local main = function()
 	}
 	local config_build = {
 		is_debug = false,
-		use_new_window = false,
+		use_new_window = true,
 	}
 	build_rust_async(config_build, state_calc)
 
