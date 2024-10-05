@@ -33,10 +33,10 @@ local build_rust = function(is_debug)
 	end
 end
 
-local build_rust_async = function(config)
+local build_rust_async = function(config, state)
 	local path_to_project = get_project_root_dir()
 	local path_to_bin = path_to_project .. "/target/release/nvim_calc_rs"
-	local job = { job_id = 0 }
+	local job_id = 0
 
 	if not vim.loop.fs_stat(path_to_bin) then
 		if config.use_new_window then
@@ -49,7 +49,7 @@ local build_rust_async = function(config)
 			print("build_cmd: " .. build_cmd)
 		end
 
-		job.job_id = vim.fn.jobstart(build_cmd, {
+		job_id = vim.fn.jobstart(build_cmd, {
 			on_stderr = function(_, data, _)
 				if data then
 					-- Add the ping output to the current buffer in real time
@@ -59,6 +59,7 @@ local build_rust_async = function(config)
 			on_exit = function(_, code, _)
 				if code == 0 then
 					vim.api.nvim_buf_set_lines(0, -1, -1, false, { "   Build: Ok" })
+					connect_to_bin(state)
 				else
 					local error_message = string.format("   Build failed with exit code: %d", code)
 					vim.api.nvim_buf_set_lines(0, -1, -1, false, { error_message })
@@ -73,21 +74,21 @@ local build_rust_async = function(config)
 		end
 	end
 
-	return job
+	return job_id
 end
 
 local main = function()
+	local state_calc = {
+		jobRpcId = 0,
+		path = get_project_root_dir() .. "/target/release/nvim_calc_rs",
+		is_debug = true,
+	}
 	local config_build = {
 		is_debug = false,
 		use_new_window = false,
 	}
-	local job_build = build_rust_async(config_build)
-	--vim.fn.jobwait(job_build)
-
-	local state_calc = {}
-	state_calc.jobRpcId = 0
-	state_calc.path = get_project_root_dir() .. "/target/release/nvim_calc_rs"
-	state_calc.is_debug = false
+	build_rust_async(config_build, state_calc)
+	connect_to_bin(state_calc)
 
 	vim.api.nvim_create_user_command("AddL", function(ops)
 		local args = ops.fargs
@@ -149,8 +150,6 @@ local main = function()
 
 		vim.rpcnotify(state_calc.jobRpcId, "mul_all", args_num)
 	end, { nargs = "*" })
-
-	connect_to_bin(state_calc)
 end
 
 main()
