@@ -27,8 +27,6 @@ build_rust = function(is_debug, state)
 		print("path_to_bin: " .. path_to_bin)
 	end
 
-	local _foo = is_diff_in_src()
-
 	if not vim.loop.fs_stat(path_to_bin) then
 		print("build rust binary ...")
 
