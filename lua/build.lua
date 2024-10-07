@@ -18,12 +18,12 @@ local is_diff_git_rust = function()
 	return false
 end
 
-local get_time_stamp = function(path_to_file)
+local get_timestamp = function(path_to_file)
 	local stat = vim.loop.fs_stat(path_to_file)
 	return os.date("%Y-%m-%d %H:%M:%S", stat.mtime.sec)
 end
 
-local function traverse_dir(path, postfix_list)
+local function dfs(path, postfix_list, file_list)
 	local scandir = vim.loop.fs_scandir(path)
 
 	if scandir then
@@ -36,12 +36,12 @@ local function traverse_dir(path, postfix_list)
 			local fullpath = path .. "/" .. name
 			for _, p in pairs(postfix_list) do
 				if fullpath:match(p) then
-					print(fullpath, typ)
+					table.insert(file_list, fullpath)
 				end
 			end
 
 			if typ == "directory" then
-				traverse_dir(fullpath, postfix_list)
+				dfs(fullpath, postfix_list, file_list)
 			end
 		end
 	else
@@ -49,22 +49,37 @@ local function traverse_dir(path, postfix_list)
 	end
 end
 
+local get_files = function(path, postfix_list)
+	local file_list = {}
+	dfs(path, postfix_list, file_list)
+
+	return file_list
+end
+
+local is_update_src = function(path, postfix_list, path_to_bin)
+	local files = get_files(path, postfix_list)
+	local timestamp_binnary = get_timestamp(path_to_bin)
+
+	for _, f in pairs(files) do
+		if get_timestamp(f) > timestamp_binnary then
+			return true
+		end
+	end
+
+	return false
+end
+
 build_rust = function(is_debug, state)
 	local project_root_dir = get_project_root_dir()
 	local path_to_bin = project_root_dir .. "/target/release/nvim_calc_rs"
-
-	--[[
-	local postfix = { "%.rs", "Cargo.toml" }
-	traverse_dir(project_root_dir, postfix)
-	local res = {}
-        --]]
 
 	if is_debug then
 		print("projet_root_dir: " .. project_root_dir)
 		print("path_to_bin: " .. path_to_bin)
 	end
 
-	if not vim.loop.fs_stat(path_to_bin) then
+	local postfix_list = { "%.rs", "Cargo.toml" }
+	if not vim.loop.fs_stat(path_to_bin) or is_update_src(project_root_dir, postfix_list, path_to_bin) then
 		print("build rust binary ...")
 
 		local build_cmd = "cargo build --release --manifest-path=" .. project_root_dir .. "/Cargo.toml"
