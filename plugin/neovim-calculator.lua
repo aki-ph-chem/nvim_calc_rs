@@ -7,7 +7,20 @@ local main = function()
 		path = get_project_root_dir() .. "/target/release/nvim_calc_rs",
 		is_debug = false,
 	}
+	local use_hot_reload = true
+
 	build_rust(false, state_calc)
+	if use_hot_reload then
+		vim.api.nvim_create_autocmd("BufWritePost", {
+			pattern = get_files(get_project_root_dir(), { "%.lua", "%.rs", "Cargo.toml" }),
+			callback = function(args)
+				if args.file:match("%.rs") or args.file:match("Cargo.toml") then
+					print("build rust binary by BufWritePost")
+					build_rust(false, state_calc)
+				end
+			end,
+		})
+	end
 
 	vim.api.nvim_create_user_command("AddL", function(ops)
 		local args = ops.fargs

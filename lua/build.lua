@@ -49,7 +49,7 @@ local function dfs(path, postfix_list, file_list)
 	end
 end
 
-local get_files = function(path, postfix_list)
+get_files = function(path, postfix_list)
 	local file_list = {}
 	dfs(path, postfix_list, file_list)
 
