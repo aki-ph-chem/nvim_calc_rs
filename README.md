@@ -84,5 +84,6 @@ After that, when Neovim is started, the first time it is started,
 ## ToDo
 
 - [x] To be able to automatically run the Rust build on first startup.
+- [x] Automatic build if there were changes on the Rust side when restarting
 - [ ] Support for hot reloading
 - [ ] Support for automatic build of Rust at appdate by Lazy.nvim
