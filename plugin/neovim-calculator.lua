@@ -14,10 +14,11 @@ local main = function()
 		vim.api.nvim_create_autocmd("BufWritePost", {
 			pattern = get_files(get_project_root_dir(), { "%.lua", "%.rs", "Cargo.toml" }),
 			callback = function(args)
-				if args.file:match("%.rs") or args.file:match("Cargo.toml") then
-					print("build rust binary by BufWritePost")
-					build_rust(false, state_calc)
+				if args.file:match("%.lua") then
+					print("*.lua is updated")
+					-- ToDo: reload thid plugin
 				end
+				build_rust(false, state_calc)
 			end,
 		})
 	end
