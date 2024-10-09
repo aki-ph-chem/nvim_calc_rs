@@ -69,6 +69,21 @@ local is_update_src = function(path, postfix_list, path_to_bin)
 	return false
 end
 
+-- state_plugin = {
+--      is_reading = false,
+--      module_name = "module_name"
+--}
+reload_plugin = function(state_plugin)
+	if state_plugin.is_reading then
+		return
+	end
+
+	print("reloading is passed")
+	state_plugin.is_reading = true
+	package.loaded[state_plugin.module_name] = nil
+	require(state_plugin.module_name)
+end
+
 build_rust = function(is_debug, state)
 	local project_root_dir = get_project_root_dir()
 	local path_to_bin = project_root_dir .. "/target/release/nvim_calc_rs"

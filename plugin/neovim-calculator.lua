@@ -8,17 +8,18 @@ local main = function()
 		is_debug = false,
 	}
 	local use_hot_reload = true
+	local state_plugin = {
+		is_reading = false,
+		module_name = "plugin.neovim-calculator",
+	}
 
 	build_rust(false, state_calc)
 	if use_hot_reload then
 		vim.api.nvim_create_autocmd("BufWritePost", {
 			pattern = get_files(get_project_root_dir(), { "%.lua", "%.rs", "Cargo.toml" }),
-			callback = function(args)
-				if args.file:match("%.lua") then
-					print("*.lua is updated")
-					-- ToDo: reload thid plugin
-				end
+			callback = function()
 				build_rust(false, state_calc)
+				reload_plugin(state_plugin)
 			end,
 		})
 	end
