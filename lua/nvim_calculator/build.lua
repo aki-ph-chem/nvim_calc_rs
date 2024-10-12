@@ -102,6 +102,7 @@ M.reload_plugin_list = function(state_plugin)
 end
 
 M.build_rust = function(is_debug, state)
+	print("build_rust() start")
 	local project_root_dir = M.get_project_root_dir()
 	local path_to_bin = project_root_dir .. "/target/release/nvim_calc_rs"
 
