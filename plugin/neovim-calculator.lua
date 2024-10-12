@@ -9,7 +9,7 @@ local main = function()
 	local use_hot_reload = true
 	local state_plugin = {
 		is_reading = false,
-		module_name = "plugin.neovim-calculator",
+		module_list = { "plugin.neovim-calculator", "nvim_calculator.build", "nvim_calculator.utl" },
 	}
 
 	build.build_rust(false, state_calc)
@@ -18,7 +18,7 @@ local main = function()
 			pattern = build.get_files(build.get_project_root_dir(), { "%.lua", "%.rs", "Cargo.toml" }),
 			callback = function()
 				build.build_rust(false, state_calc)
-				build.reload_plugin(state_plugin)
+				build.reload_plugin_list(state_plugin)
 			end,
 		})
 	end

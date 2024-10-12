@@ -85,6 +85,22 @@ M.reload_plugin = function(state_plugin)
 	require(state_plugin.module_name)
 end
 
+M.reload_plugin_list = function(state_plugin)
+	if state_plugin.is_reading then
+		return
+	end
+
+	print("reloading is passed")
+	state_plugin.is_reading = true
+
+	for _, s in pairs(state_plugin.module_list) do
+		package.loaded[s] = nil
+	end
+	for _, s in pairs(state_plugin.module_list) do
+		require(s)
+	end
+end
+
 M.build_rust = function(is_debug, state)
 	local project_root_dir = M.get_project_root_dir()
 	local path_to_bin = project_root_dir .. "/target/release/nvim_calc_rs"
