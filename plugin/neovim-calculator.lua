@@ -14,10 +14,14 @@ local main = function()
 
 	build.build_rust(false, state_calc)
 	if use_hot_reload then
+		vim.api.nvim_clear_autocmds({
+			event = "BufWritePost",
+			pattern = build.get_files(build.get_project_root_dir(), { "%.lua", "%.rs", "Cargo.toml" }),
+		})
+
 		vim.api.nvim_create_autocmd("BufWritePost", {
 			pattern = build.get_files(build.get_project_root_dir(), { "%.lua", "%.rs", "Cargo.toml" }),
 			callback = function()
-				build.build_rust(false, state_calc)
 				build.reload_plugin_list(state_plugin)
 			end,
 		})
