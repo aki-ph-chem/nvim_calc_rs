@@ -1,11 +1,13 @@
-initRpc = function(state)
+local M = {}
+
+local init_rpc = function(state)
 	if state.jobRpcId == 0 then
 		state.jobRpcId = vim.fn.jobstart(state.path, { rpc = true })
 	end
 end
 
-connect_to_bin = function(state)
-	initRpc(state)
+M.connect_to_bin = function(state)
+	init_rpc(state)
 	local id = state.jobRpcId
 
 	if 0 == id or -1 == id then
@@ -17,3 +19,5 @@ connect_to_bin = function(state)
 		print("connection of RPC: OK")
 	end
 end
+
+return M

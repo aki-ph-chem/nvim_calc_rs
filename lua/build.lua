@@ -1,6 +1,7 @@
-require("utl")
+local utl = require("utl")
+local M = {}
 
-get_project_root_dir = function()
+M.get_project_root_dir = function()
 	-- get path to project root
 	local plugin = debug.getinfo(1, "S").source:sub(2):match("(.*/)")
 	local plugin_root = plugin:gsub("/lua/?$", "")
@@ -8,10 +9,10 @@ get_project_root_dir = function()
 end
 
 local is_diff_git_rust = function()
-	local diff = vim.fn.systemlist("git diff --name-only", get_project_root_dir())
+	local diff = vim.fn.systemlist("git diff --name-only", M.get_project_root_dir())
 
 	for _, file_name in ipairs(diff) do
-		if file_name:match("Cargo.toml") or file_name:match(".*rs$") then
+		if file_name:match("Cargo.toml") or file_name:match("%.*rs$") then
 			return true
 		end
 	end
@@ -49,7 +50,7 @@ local function dfs(path, postfix_list, file_list)
 	end
 end
 
-get_files = function(path, postfix_list)
+M.get_files = function(path, postfix_list)
 	local file_list = {}
 	dfs(path, postfix_list, file_list)
 
@@ -57,7 +58,7 @@ get_files = function(path, postfix_list)
 end
 
 local is_update_src = function(path, postfix_list, path_to_bin)
-	local files = get_files(path, postfix_list)
+	local files = M.get_files(path, postfix_list)
 	local timestamp_binnary = get_timestamp(path_to_bin)
 
 	for _, f in pairs(files) do
@@ -73,7 +74,7 @@ end
 --      is_reading = false,
 --      module_name = "module_name"
 --}
-reload_plugin = function(state_plugin)
+M.reload_plugin = function(state_plugin)
 	if state_plugin.is_reading then
 		return
 	end
@@ -84,8 +85,8 @@ reload_plugin = function(state_plugin)
 	require(state_plugin.module_name)
 end
 
-build_rust = function(is_debug, state)
-	local project_root_dir = get_project_root_dir()
+M.build_rust = function(is_debug, state)
+	local project_root_dir = M.get_project_root_dir()
 	local path_to_bin = project_root_dir .. "/target/release/nvim_calc_rs"
 
 	if is_debug then
@@ -110,5 +111,7 @@ build_rust = function(is_debug, state)
 		print("build: Ok")
 	end
 
-	connect_to_bin(state)
+	utl.connect_to_bin(state)
 end
+
+return M

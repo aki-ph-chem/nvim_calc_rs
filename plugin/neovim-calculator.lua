@@ -1,10 +1,9 @@
-require("utl")
-require("build")
+local build = require("build")
 
 local main = function()
 	local state_calc = {
 		jobRpcId = 0,
-		path = get_project_root_dir() .. "/target/release/nvim_calc_rs",
+		path = build.get_project_root_dir() .. "/target/release/nvim_calc_rs",
 		is_debug = false,
 	}
 	local use_hot_reload = true
@@ -13,13 +12,13 @@ local main = function()
 		module_name = "plugin.neovim-calculator",
 	}
 
-	build_rust(false, state_calc)
+	build.build_rust(false, state_calc)
 	if use_hot_reload then
 		vim.api.nvim_create_autocmd("BufWritePost", {
-			pattern = get_files(get_project_root_dir(), { "%.lua", "%.rs", "Cargo.toml" }),
+			pattern = build.get_files(build.get_project_root_dir(), { "%.lua", "%.rs", "Cargo.toml" }),
 			callback = function()
-				build_rust(false, state_calc)
-				reload_plugin(state_plugin)
+				build.build_rust(false, state_calc)
+				build.reload_plugin(state_plugin)
 			end,
 		})
 	end
