@@ -1,4 +1,4 @@
-local build = require("build")
+local build = require("nvim_calculator.build")
 
 local main = function()
 	local state_calc = {

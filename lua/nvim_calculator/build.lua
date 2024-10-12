@@ -1,10 +1,10 @@
-local utl = require("utl")
+local utl = require("nvim_calculator.utl")
 local M = {}
 
 M.get_project_root_dir = function()
 	-- get path to project root
 	local plugin = debug.getinfo(1, "S").source:sub(2):match("(.*/)")
-	local plugin_root = plugin:gsub("/lua/?$", "")
+	local plugin_root = plugin:gsub("/lua/nvim_calculator/?$", "")
 	return plugin_root
 end
 
